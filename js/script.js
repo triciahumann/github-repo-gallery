@@ -2,6 +2,8 @@
 const profileInformationElement = document.querySelector(".overview");
 // github username
 const username = "triciahumann";
+// the unordered list to display repos
+const repoList = document.querySelector(".repo-list");
 
 
 // Fetch information from my GitHub using the Github API
@@ -10,7 +12,7 @@ const getGithubData = async function () {
         `https://api.github.com/users/${username}`
     );
     const data = await response.json();
-    console.log(data);
+    //console.log(data);
     displayUserInfo(data);
 };
 
@@ -36,4 +38,26 @@ const displayUserInfo = function (data) {
    
     // append the new div (capturedUserData) to the profile information display
     profileInformationElement.append(capturedUserDataDiv);
+    gitRepos();
 };
+
+// Fetch repos 
+const gitRepos = async function () {
+    // paramaters = sort repos by most recently updated & show up to 100 repos on page at a time
+    const getRepos = await fetch (` https://api.github.com/users/${username}/repos?sort=updated&per_page=100`);
+    const repoData = await getRepos.json();
+    //console.log(repoData);
+    displayRepoInfo(repoData);
+};
+
+// // display info about each repo
+const displayRepoInfo = function (repos) {
+    for (const repo of repos) {
+        const listItem = document.createElement("li")
+        listItem.classList.add("repo");
+        listItem.innerHTML = `<h3>${repo.name}</h3>`
+        repoList.append(listItem);
+    }
+};
+
+
