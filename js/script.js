@@ -8,6 +8,10 @@ const repoList = document.querySelector(".repo-list");
 const allRepoData = document.querySelector(".repos");
 // section where the INDIVIDUAL repo data appears
 const singleRepoData = document.querySelector(".repo-data")
+// the "Back to Repo Gallery" button
+const button = document.querySelector(".view-repos");
+// input field with the "Search by name" placeholder
+const filterInput = document.querySelector(".filter-repos");
 
 
 // Fetch information from my GitHub using the Github API
@@ -25,6 +29,8 @@ getGithubData();
 
 // Display fetched github data and display user info on webpage
 const displayUserInfo = function (data) {
+    // shows the input textbox that will filter though repos
+    filterInput.classList.remove("hide");
     // new div containing user information we gathered from github
     const capturedUserDataDiv = document.createElement("div");
     capturedUserDataDiv.classList.add("user-info");
@@ -102,7 +108,7 @@ const getSpecificRepoInfo = async function (repoName) {
     displayRepoInfo(repoInfo, languages);
 };
 
-// DISPLAY SPECIFIC repo information after click
+// DISPLAY SPECIFIC repo information after click for an individual repo
 const displayRepoInfo = function (repoInfo, languages) {
     singleRepoData.innerHTML = ""
     const div = document.createElement("div");
@@ -116,4 +122,32 @@ const displayRepoInfo = function (repoInfo, languages) {
     singleRepoData.append(div);
     singleRepoData.classList.remove("hide");
     allRepoData.classList.add("hide");
-}
+    button.classList.remove("hide");
+};
+
+// When you click on button when viewing individual repo data 
+const returnButton = addEventListener("click", function () {
+    allRepoData.classList.remove("hide");
+    singleRepoData.classList.add("hide");
+    button.classList.add("hide");
+});
+
+// Add functionality to filter textbox
+filterInput.addEventListener("input", function (e) {
+    // captures the value of search text
+    const textInput = e.target.value; 
+    // console.log(textInput); <<<< checked that when you type in textbox it shows up in console
+    const repos = document.querySelectorAll(".repo");
+    const lowerCaseText = textInput.toLowerCase();
+
+    // searches through all repos and compares
+    // lowercase text of the repo name to lowercase text of what's in searh field/text box
+    for (const repo of repos) {
+        const lowerCaseRepo = repo.innerText.toLowerCase(); 
+        if (lowerCaseRepo.includes(lowerCaseText)) {
+            repo.classList.remove("hide")
+        } else {
+            repo.classList.add("hide");
+        }
+    }
+});
