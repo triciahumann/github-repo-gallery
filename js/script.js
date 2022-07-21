@@ -4,6 +4,10 @@ const profileInformationElement = document.querySelector(".overview");
 const username = "triciahumann";
 // the unordered list to display repos
 const repoList = document.querySelector(".repo-list");
+// section where ALL repo data appears
+const allRepoData = document.querySelector(".repos");
+// section where the INDIVIDUAL repo data appears
+const singleRepoData = document.querySelector(".repo-data")
 
 
 // Fetch information from my GitHub using the Github API
@@ -47,11 +51,11 @@ const gitRepos = async function () {
     const getRepos = await fetch (` https://api.github.com/users/${username}/repos?sort=updated&per_page=100`);
     const repoData = await getRepos.json();
     //console.log(repoData);
-    displayRepoInfo(repoData);
+    displayRepoName(repoData);
 };
 
-// // display info about each repo
-const displayRepoInfo = function (repos) {
+// // Display repo name
+const displayRepoName = function (repos) {
     for (const repo of repos) {
         const listItem = document.createElement("li")
         listItem.classList.add("repo");
@@ -60,4 +64,56 @@ const displayRepoInfo = function (repos) {
     }
 };
 
+// Click event for indiviudal repos
+repoList.addEventListener("click", function (e) {
+    if (e.target.matches("h3")) {
+        // target the innerText where the event happens
+        const repoName = e.target.innerText;
+        // double check when I click on a repo that something pops up in the console
+        // console.log(repoName);
+        getSpecificRepoInfo(repoName);
+    }
+});
 
+// FETCH SPECFIC repo information 
+const getSpecificRepoInfo = async function (repoName) {
+    const specificInfo = await fetch (
+        `https://api.github.com/repos/${username}/${repoName}`
+    );
+    // resolve and save the json response
+    const repoInfo = await specificInfo.json();
+    // to view specific repo data when you click on a specific repo
+    //console.log(repoInfo);
+
+    // fetch data from lanuage_url property of repoInfo
+    const fetchLanguages = await fetch (
+        `https://api.github.com/repos/${username}/${repoName}/languages`
+    );
+    // languageData is where the JSON data is saved
+    const languageData = await fetchLanguages.json();
+    //console.log(languageData); <<<<<< checked to make sure languages appeared in console
+
+    // Make a list of languages
+    const languages = [];
+    for (const language in languageData) {
+        languages.push(language);
+    }
+    // console.log(languages); <<<< checked to make sure array of language for each repo clicked
+    displayRepoInfo(repoInfo, languages);
+};
+
+// DISPLAY SPECIFIC repo information after click
+const displayRepoInfo = function (repoInfo, languages) {
+    singleRepoData.innerHTML = ""
+    const div = document.createElement("div");
+    div.innerHTML = `
+    <h3>Name: ${repoInfo.name}</h3>
+        <p>Description: ${repoInfo.description}</p>
+        <p>Default Branch: ${repoInfo.default_branch}</p>
+        <p>Languages: ${languages.join(", ")}</p>
+        <a class="visit" href="${repoInfo.html_url}" target="_blank" rel="noreferrer noopener">
+        View Repo on GitHub!</a>`
+    singleRepoData.append(div);
+    singleRepoData.classList.remove("hide");
+    allRepoData.classList.add("hide");
+}
